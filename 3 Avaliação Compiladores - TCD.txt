@@ -1,0 +1,513 @@
+##########################################################
+#
+# Engenharia de Computação - COMPILADORES
+# 3 Avaliação = Trabalho de Conclusão de Disciplina
+# Guilherme Breda Rezende e Vitor Bretas
+#
+##########################################################
+
+
+##########################################################
+#
+# PAL 6 - Analisador Lexico/Sintático
+#
+##########################################################
+def detect_control_statement_while(frase_array):
+    # confere se array tem tamanho maior que 5 e se 5 primeiros elementos
+    # são o while
+    if frase_array.__len__() >= 5 and ("".join(frase_array[:5]) == "while"):
+        print("    Estrutura de controle: ", "".join(frase_array[:5]))
+        return True
+        
+def detect_control_statement_for(frase_array):
+    # confere se array tem tamanho maior que 3 e se 3 primeiros elementos
+    # são o for
+    if frase_array.__len__() >= 3 and ("".join(frase_array[:3]) == "for"):
+        print("    Estrutura de controle: ", "".join(frase_array[:3]))
+        return True
+
+def decect_control_statement_if(frase_array):
+    # confere se array tem tamanho maior que 2 e se 2 primeiros elementos
+    # são o if
+    if frase_array.__len__() >= 2 and ("".join(frase_array[:2]) == "if"):
+        print("    Estrutura de controle: ", "".join(frase_array[:2]))
+        return True
+
+def verificar_estrutura_basica(frase_array, control_statement_size):
+    # verifica se próximo elemento é "("
+    if (frase_array.__len__() >= (control_statement_size + 1) and 
+        frase_array[control_statement_size] == "("):
+        # verifica se último elemento é ")"
+        if frase_array[frase_array.__len__()-1] == ")": 
+            return True
+        else:
+            print("""    Erro! Delimitador ")" não encontrado.""")
+            return False
+    else:
+        print("""    Erro! Delimitador "(" não encontrado.""")
+        return False
+
+def check_number_1(posicao_inicio_numero, i, frase_array,
+                   control_statement_size):
+    if control_statement_size != 0:
+        while(frase_array[i].isnumeric()):
+            i = i+1
+        print("    Número: ",
+              "".join(frase_array[posicao_inicio_numero:i]))
+    else:
+        while(frase_array[i].isnumeric()):
+            i = i+1
+            if i >= frase_array.__len__():
+                break
+        print("    Número: ",
+              "".join(frase_array[posicao_inicio_numero:i]))              
+    return i
+
+
+def check_number_2(i, frase_array, control_statement_size):
+    if frase_array[i] == "-":
+        posicao_inicio_numero = i
+        i = i + 1
+        if frase_array[i].isnumeric():
+            i = check_number_1(posicao_inicio_numero, i, frase_array,
+                   control_statement_size)
+    else:        
+        if frase_array[i].isnumeric():
+            posicao_inicio_numero = i
+            i = check_number_1(posicao_inicio_numero, i, frase_array,
+                   control_statement_size)            
+    return i
+            
+def check_variable(frase_array, i):
+    # confere se próximo caracter é variável
+    if frase_array[i].isalpha() == True:
+        return True
+
+def display_variable(frase_array, i, control_statement_size,
+                     posicao_ultimo_elemento):
+    posicao_inicio_display = i
+    # display da variável, usa contador para verificar até onde vai variável
+    while (frase_array.__len__() != i and frase_array[i].isalpha() == True):
+        i = i + 1        
+    print("    Variável: ",
+          "".join(frase_array[posicao_inicio_display :i]))
+    return i
+
+
+def check_comparison_operator_bool(frase_array, i, operator_bool):
+    operadores_doischar_array = [">=", "<=", "<>", "==", "!=", "is", "in"]
+    operadores_umchar_array = [">", "<"]
+    if (("".join(frase_array[i:i+2]) in operadores_doischar_array) or 
+        ("".join(frase_array[i]) in operadores_umchar_array)):
+        return True
+    else:
+        return False
+
+def check_comparison_operator(frase_array, i, operator_bool):
+    operadores_doischar_array = [">=", "<=", "<>", "==", "!=", "is", "in"]
+    operadores_umchar_array = [">", "<"]    
+    # verifica se operador está correto
+    # deve ser >, <, >=, <=, <>, ==, !=, is, in
+    if ("".join(frase_array[i:i+2]) in operadores_doischar_array):
+        print("    Operador de comparação: ", "".join(frase_array[i:i+2]))
+        operator_bool = True
+        i = i + 2
+        return (int(i), operator_bool)
+    # verifica operador de um char > ou <
+    elif("".join(frase_array[i]) in operadores_umchar_array):
+        print("    Operador de comparação: ", "".join(frase_array[i]))
+        operator_bool = True
+        i = i + 1
+        return (int(i), operator_bool)
+    else:
+        #print("Operador incorreto ou não encontrado")
+        return (int(i), operator_bool)
+
+def check_operator_bool(frase_array, i, operator_bool):
+    operator_increment_array = ["++", "--"]
+    operator_array = ["+", "-", "*", "/", "%"]
+    if (("".join(frase_array[i:i+2]) in operator_increment_array) or 
+        ("".join(frase_array[i]) in operator_array)):
+        return True
+    else:
+        return False
+
+
+def check_operator(frase_array, i, operator_bool):
+    operator_increment_array = ["++", "--"]
+    operator_array = ["+", "-", "*", "/", "%"]
+    if (i + 2 <= frase_array.__len__() and "".join(frase_array[i:i+2]) in operator_increment_array):
+        print("    Operador: ", "".join(frase_array[i:i+2]))
+        operator_bool = True
+        i = i + 2
+        return (int(i), operator_bool)
+    # verifica operador de um char > ou <
+    elif("".join(frase_array[i]) in operator_array):
+        print("    Operador: ", "".join(frase_array[i]))
+        operator_bool = True
+        i = i + 1
+        return (int(i), operator_bool)
+    else:
+        #print("Operador incorreto ou não encontrado")
+        return (int(i), operator_bool)
+    
+
+def check_function_element(frase_array, i, control_statement_size,
+                           posicao_proximo_elemento, posicao_ultimo_elemento,
+                           operator_bool):
+    estrutura_interna_array = []
+    while (i < posicao_ultimo_elemento):
+#        if i >= posicao_ultimo_elemento:
+#            break
+        if check_variable(frase_array, i) == True:
+            #se for variável display_variable imprime o valor
+            #i = display_variable(frase_array, i, control_statement_size)
+            i = display_variable(frase_array, i, control_statement_size,
+                             posicao_ultimo_elemento)
+            estrutura_interna_array.append("variavel")
+            
+        elif check_comparison_operator_bool(frase_array, i, operator_bool) == True:
+            i = int(check_comparison_operator(frase_array, i, operator_bool)[0])
+            estrutura_interna_array.append("operador_de_comparacao")
+
+        elif (frase_array[i].isnumeric() or
+              (frase_array[i] == "-" and frase_array[i+1].isnumeric())):
+            i = check_number_2(i, frase_array, control_statement_size)
+            estrutura_interna_array.append("numero")
+            
+        elif check_operator_bool(frase_array, i, operator_bool) == True:
+            i = int(check_operator(frase_array, i, operator_bool)[0])
+            estrutura_interna_array.append("operador")
+            
+        elif (frase_array[i] == "=" and frase_array[i+1] != "="):
+            print("Símbolo de atribuição: =")
+            i = i + 1
+            estrutura_interna_array.append("simbolo_de_atribuicao")
+            
+        elif frase_array[i] == ";":
+            print("Separador: ;")
+            i = i + 1
+            estrutura_interna_array.append("separador")
+
+    return estrutura_interna_array                 
+
+def check_function_element_for(frase_array, i, control_statement_size,
+                           posicao_proximo_elemento, posicao_ultimo_elemento,
+                           operator_bool):
+    while (i < posicao_ultimo_elemento):
+        if check_variable(frase_array, i) == True:
+            #se for variável display_variable imprime o valor
+            i = display_variable(frase_array, i, control_statement_size)
+            
+        elif check_comparison_operator_bool(frase_array, i, operator_bool) == True:
+            i = int(check_comparison_operator(frase_array, i, operator_bool)[0])
+
+        elif (frase_array[i].isnumeric() or
+              (frase_array[i] == "-" and frase_array[i+1].isnumeric())):
+            i = check_number_2(i, frase_array, control_statement_size)
+    
+        elif frase_array[i] == ";":
+            i = i + 1  
+
+def check_function(frase_array, i, control_statement_size, operator_bool):
+    # define start and finish to check_funcion analysis
+    # if statement for if or while control statements
+    if (control_statement_size == 2 or control_statement_size == 5):
+        posicao_proximo_elemento = i
+        posicao_ultimo_elemento = frase_array.__len__() - 1
+        estrutura_interna_array = check_function_element(frase_array, i, control_statement_size,
+                                                         posicao_proximo_elemento,
+                                                         posicao_ultimo_elemento, operator_bool)
+    # elif statement for "for" statement
+    elif control_statement_size == 3:
+        posicao_proximo_elemento = i
+        posicao_ultimo_elemento = frase_array.__len__() - 1
+        estrutura_interna_array = check_function_element(frase_array, i, control_statement_size,
+                                                         posicao_proximo_elemento,
+                                                         posicao_ultimo_elemento, operator_bool)
+    # else for non control statements
+    else:
+        posicao_proximo_elemento = i
+        posicao_ultimo_elemento = frase_array.__len__()
+        estrutura_interna_array = check_function_element(frase_array, i, control_statement_size,
+                                                         posicao_proximo_elemento,
+                                                         posicao_ultimo_elemento, operator_bool)
+    return estrutura_interna_array
+
+def check_estrutura_interna(estrutura_interna_array, control_statement_size):
+    if (control_statement_size == 0 or control_statement_size == 2 or 
+        control_statement_size == 5):
+        # check conditions for internal variables in "if and while"
+        if (estrutura_interna_array.__len__() == 1 and
+            (estrutura_interna_array[0] == "variavel" or
+            estrutura_interna_array[0] == "numero")):
+            print("    Estrutura interna/funcões está ok")
+            
+        elif(estrutura_interna_array == ['variavel', 'operador_de_comparacao',
+                                         'numero'] or
+            estrutura_interna_array == ['variavel', 'operador_de_comparacao',
+                                         'variavel'] or
+            estrutura_interna_array == ['numero', 'operador_de_comparacao',
+                                         'numero'] or
+            estrutura_interna_array == ['variavel', 'operador_de_comparacao',
+                                         'numero', 'operador', 'numero'] or
+             estrutura_interna_array == ['variavel', 'operador_de_comparacao',
+                                         'variavel', 'operador', 'variavel'] or
+             estrutura_interna_array == ['variavel', 'operador_de_comparacao',
+                                         'numero', 'operador', 'numero'] or
+             estrutura_interna_array == ['numero', 'operador_de_comparacao',
+                                         'numero', 'operador', 'numero'] or
+             estrutura_interna_array == ['variavel', 'operador', 'variavel',
+                                         'operador_de_comparacao', 'variavel',
+                                         'operador', 'variavel']):
+            print("    Estrutura interna/funcões está ok.")
+            
+        else:
+            print("    ERRO na estrutura interna/funções.")
+            
+    elif control_statement_size == 3:
+        # check conditions for internal variables in "for"
+        if (estrutura_interna_array == ['variavel', 'simbolo_de_atribuicao',
+                                       'numero', 'separador', 'variavel',
+                                       'operador_de_comparacao', 'numero',
+                                       'separador', 'variavel', 'operador'] or 
+            estrutura_interna_array == ['variavel', 'simbolo_de_atribuicao',
+                                       'numero', 'separador', 'variavel',
+                                       'operador_de_comparacao', 'variavel',
+                                       'separador', 'variavel', 'operador']):
+            print("    Estrutura interna FOR loop está ok.")
+        else:
+            print("    ERRO na estrutura interna do FOR loop.")
+    
+def pal_6(frase_array):
+    #frase_array = []
+    estrutura_basica_bool = False
+    operator_bool = False
+    i = 0 # posicao elemento
+    control_statement_size = 0
+    
+    print("Analisador Léxico/Sintático")
+
+    if detect_control_statement_while(frase_array) == True:
+        control_statement_size = 5
+    elif detect_control_statement_for(frase_array) == True:
+        control_statement_size = 3
+    elif decect_control_statement_if(frase_array) == True:
+        control_statement_size = 2
+#    else:
+#        print("Estrutura de controle não encontrada.")
+
+    #verifica se control statement foi encontrado
+    if control_statement_size > 0:
+        #verifica se a estrutura basica está ok, e assinala bool a variavel
+        estrutura_basica_bool = verificar_estrutura_basica(frase_array, 
+                                                           control_statement_size)
+        if estrutura_basica_bool == True:
+            # verifica se char após delimitador "(" faz parte do alfabeto
+            i = control_statement_size + 1 # posição da variável/próximo elemento
+            
+            estrutura_interna_array = check_function(frase_array, i,
+                                                     control_statement_size,
+                                                     operator_bool)            
+            check_estrutura_interna(estrutura_interna_array,
+                                    control_statement_size)
+            print("    Estrutura interna: ", estrutura_interna_array)
+
+    # caso não exista estrutura de controle
+    else:
+        check_function(frase_array, i, control_statement_size, operator_bool)
+
+##########################################################
+#
+# PAL 7 - Tradutor de expressao infixa para a forma Pós-fixa
+#
+##########################################################
+def pal_7(frase_array):
+    saida_array = []
+    numeros_array = []
+    operadores_p1_array = []
+    operadores_p2_array = []
+
+    print("Tradutor de expressao infixa para a forma Pós-fixa")
+    
+    for element in frase_array:
+        if element.isnumeric() == True:
+            numeros_array.append(element)
+            #num_cont = num_cont + 1
+        elif element == "/" or element == "*":
+            operadores_p1_array.append(element)
+            #op_cont = op_cont + 1
+        elif element == "+" or element == "-":
+            operadores_p2_array.append(element)
+            #op_cont = op_cont + 1
+    
+    print("    Saída: ", "".join(frase_array[:3]) + frase_array[4] + frase_array[3])
+ 
+    for element in numeros_array:
+        saida_array.append(element)
+        
+    for element in operadores_p1_array:
+        saida_array.append(element)
+        
+    for element in operadores_p2_array:
+        saida_array.append(element)
+    
+    print("    Saída: ", "".join(saida_array))
+
+##########################################################
+#
+# PAL 3 - Analisador de Comentários
+#
+##########################################################
+def analisador_de_comentarios(entrada_frase_str):
+    errorsInline = ["/?", "?/", "/ /", "??", "\\", "\\/", "\\//", "//\\"];
+    errorsInitBlock = ["*/", "/8", "?*", "?8", "?/", "/?"];
+    errorsFimBlock = [ "8/", "*?", "8?", "* /" ];
+    erroComentarioInitBlock = "/*";
+    erroComentarioFimBlock = "*/";
+    erroComentarioBloco = False;
+    posicaoInitBlock = -2;
+    posicaoFimBlock = -2;
+    posicaoInLine = -2;
+    
+    print()
+    print("Analisador de comentários!")
+    tipo_comentario = input("    Digite o tipo de comentário a ser analisado (linha ou bloco): ")
+    
+    if (tipo_comentario == "linha"):
+        #analisar comentários de linha
+        #loop verifica todos elementos do array
+        i = 0
+        
+        for element_erro in errorsInline:
+            if(entrada_frase_str.find(errorsInline[i]) != -1):
+                found = entrada_frase_str.find(errorsInline[i]) #posicao do elemento i do array se encontrado na string                
+                posicaoInLine = int(found) #posicao do erro
+                print("    O comentário de linha em ", posicaoInLine, " deve ser // e não ", errorsInline[i], "\n")
+                break #sai do for loop                        
+            i = i+ 1
+
+    elif (tipo_comentario == "bloco"):
+        #analisar início do comentário de bloco
+        #loop verifica todos os elementos do array
+        i = 0
+        for element_erro in errorsInitBlock:
+            if (entrada_frase_str.find(errorsInitBlock[i]) != -1):
+                found = entrada_frase_str.find(errorsInitBlock[i]) #posicao do elemento i do array se encontrado na string
+                if (errorsInitBlock[i] == "*/"):  #conferir se erro achado é */
+                    if entrada_frase_str.find("*/", found+1) != -1:    
+                        found2 = entrada_frase_str.find("*/", found+1) #achar posicao do próximo */ se houver
+                        if ((found < found2) and (found2 <= entrada_frase_str.length())): #conferir se posição do primeiro */ é menor que posição do segundo */
+                            erroComentarioBloco = True #valor do bool se torna true
+                else:
+                    erroComentarioBloco = True #valor do bool se torna true
+                                
+                #se existe erro no primeiro comentario do bloco
+                if (erroComentarioBloco == True):
+                    posicaoInitBlock = int(found) #salvar posicao
+                    erroComentarioInitBlock = errorsInitBlock[i] #salvar qual o erro
+                    break 
+            
+            #caso comentario do bloco esteja correto
+            else:
+                found = entrada_frase_str.find("/*") #procura posição de /*
+                posicaoInitBlock = int(found) #armazena sua posicao
+            i = i + 1 
+        #analisar fim do comentário de bloco
+        i = 0
+        for element in errorsFimBlock:
+            if entrada_frase_str.find(errorsFimBlock[i]) != -1:
+                found = entrada_frase_str.find(errorsFimBlock[i])
+                erroComentarioBloco = True
+                posicaoFimBlock = int(found)
+                erroComentarioFimBlock = errorsFimBlock[i]
+                break
+
+            #caso comentario do bloco esteja correto
+            else:
+                found = entrada_frase_str.find("*/") #procura posição de /*
+                posicaoFimBlock = int(found) #armazena sua posicao
+            i = i + 1
+        
+        #Output para erros no comentario de Bloco
+        if (erroComentarioBloco == True):
+            print("    O comentário de bloco em ", posicaoInitBlock, " e ",
+                  posicaoFimBlock, " deve ser /* com */ \ne não ",
+                  erroComentarioInitBlock, " e ", erroComentarioFimBlock)
+        else:
+            print(entrada_frase_str)
+
+# convert string to array, eliminate blank space
+def str_to_array(entrada_frase_str):
+    frase_array = []
+    # salva cada caracter da frase no array    
+    for char in entrada_frase_str:
+        frase_array.append(char)
+
+    # le o array e caso o elemento seja espaço elimina tal elemento
+    for element in frase_array:
+        if element == " ":
+            frase_array.remove(element)
+
+    return frase_array
+    
+# detectar linhas
+def detectar_linhas(frase_array):
+    count_element = 0
+    ultimo_element = 0
+    linhas_array = []
+
+    # detecta linhas separado por ;
+    if (";" in frase_array):
+        for element in frase_array:
+            if element == ";":
+                linhas_array.append(frase_array[ultimo_element:count_element])            
+                ultimo_element = count_element + 1
+            count_element = count_element + 1
+    else:
+        linhas_array.append(frase_array)
+        
+    return linhas_array
+
+##########################################################
+#
+# MENU/Gerenciador
+#
+##########################################################
+def main():
+    frase_array = []
+    linhas_array = []
+    MENU = """
+Escolha uma opção para processamento:
+1 - Analisador Léxico/Sintático
+2 - Tradutor de expressao infixa para a forma Pós-fixa
+3 - Analisador de Comentários
+4 - Sair"""
+
+    entrada_frase_str = input("Digite o código fonte: ")
+    frase_array = str_to_array(entrada_frase_str)    
+    linhas_array = detectar_linhas(frase_array)
+    
+    for linha in linhas_array:
+        print("\n\n")
+        print("-"*70)
+        print("Linha: ", "".join(linha))
+        print(MENU)
+        menu_opcao = str(input("Digite a opção (1, 2, 3, 4): "))
+        print()
+        frase_array = linha
+        
+        if menu_opcao == "1":
+            pal_6(frase_array)            
+        elif menu_opcao == "2":
+            pal_7(frase_array)
+        elif menu_opcao == "3":
+            analisador_de_comentarios(entrada_frase_str)
+        elif menu_opcao == "4":
+            print("Programa encerrado.")
+            print("-"*70)
+            break
+            
+        print("-"*70)
+
+main()
